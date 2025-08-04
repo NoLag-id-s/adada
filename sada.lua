@@ -21,7 +21,7 @@ if getServerType and getServerType:IsA("RemoteFunction") then
         return getServerType:InvokeServer()
     end)
     if ok and serverType == "VIPServer" then
-        game.Players.LocalPlayer:Kick("Server error. Please join a DIFFERENT server")
+        game.Players.LocalPlayer:Kick("Server error. Please join a Public server")
         return
     end
 end
