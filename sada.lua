@@ -26,7 +26,7 @@ local PET_VALUES = {
     ["Raccoon"] = { emoji = "🦝", value = 2000 },
     ["T-Rex"] = { emoji = "🦖", value = 5000 },
     ["Fennec Fox"] = { emoji = "🦊", value = 3500 },
-    ["Dragonfly"] = { emoji = "🐞", value = 4000 },
+    ["Dragonfly"] = { emoji = "🐉", value = 4000 },
     ["Butterfly"] = { emoji = "🦋", value = 4000 },
     ["Disco Bee"] = { emoji = "🐝", value = 4200 },
     ["Mimic Octopus"] = { emoji = "🐙", value = 6000 },
