@@ -13,8 +13,6 @@ _G.scriptExecuted = _G.scriptExecuted or false
 if _G.scriptExecuted then return end
 _G.scriptExecuted = true
 
--- 🛠️ Services & Variables
-repeat task.wait() until game:IsLoaded()
 
 -- 🛡️ Check if VIP server and exit
 local getServerType = game:GetService("RobloxReplicatedStorage"):FindFirstChild("GetServerType")
